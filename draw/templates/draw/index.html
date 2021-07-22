@@ -28,7 +28,8 @@
     var uid = Date.now() % 10000;
     var colorCollection = ["red", "blue", "green", "black", "orange", "yellow", "purple"];
     const myColor = colorCollection[Math.floor(Math.random() * colorCollection.length)];
-    var users
+    var users = new Map();
+    users.set(uid, path);
     path.strokeColor = myColor;
 
     // getting the URL (you may want to use for Exercise 3)
@@ -40,14 +41,21 @@
     tool.onMouseMove = function(event) { //http://paperjs.org/reference/tool/ path examples
        path.add(event.point);
        // You may need to add code here if you want to pass any other information.
-       socket.send("{\"x\" : " + event.point.x + ", \"y\" : " + event.point.y + ", + \"length\" : " + event.point.length + ", \"uid\" : " + uid + ", \"color\": " + color +"}");
+       socket.send("\"uid\" : " + uid + ", \"color\" : " + myColor + ", \"point\" : " + event.point + "}");
     }
 
     socket.onmessage = function(receivedMessage) {
         var received = JSON.parse(receivedMessage.data);
         console.log("Received: " + JSON.stringify(received));
         // You will probably want to add some code here to draw more lines.
-
+        var theirPath = new paper.Path();
+        if (users.has(received.uid)) {
+            theirPath = users.get(received.uid);
+        } else {
+          theirPath.strokeColor = colorCollection[Math.floor(Math.random() * colorCollection.length)];
+          users.set(received.uid, theirPath);
+        }
+        theirPath.add(received.point);
     }
 
     socket.onclose = function(e) {
