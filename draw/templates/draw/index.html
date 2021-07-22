@@ -33,6 +33,9 @@
 
     // getting the URL (you may want to use for Exercise 3)
     var url = window.location.href;
+    var query = window.location.search;
+    var urlParams = new URLSearchParams(query);
+    var screenSize = urlParams.get('size');
 
     var socket = new WebSocket(
         'ws://' + window.location.host + '/ws/draw');
@@ -52,35 +55,38 @@
        ", \"quadrant\" : " + event.point.quadrant +
        ", \"uid\" : " + uid +
        ", \"color\" : \"" + String(color) +
+       "\", \"size\" : \"" + String(screenSize) +
        "\"}");
        console.log("Sent: " + "{\"x\" : " + event.point.x + ", \"y\" : " + event.point.y + ", \"uid\" : " + uid + "}");
     }
 
     socket.onmessage = function(receivedMessage) {
-        var received = JSON.parse(receivedMessage.data);
-        console.log("Received: " + JSON.stringify(received));
-        // You will probably want to add some code here to draw more lines.
-        if (received.uid !== uid) {
-          var theirPath;
-          if (users.hasOwnProperty(received.uid)) {
-            theirPath = users[received.uid];
-            theirPath.strokeColor = received.color;
-          } else {
-            theirPath = new paper.Path();
-            theirPath.strokeColor = colorCollection[Math.floor(Math.random() * colorCollection.length)];
-          }
+      var received = JSON.parse(receivedMessage.data);
+      console.log("Received: " + JSON.stringify(received));
+      // You will probably want to add some code here to draw more lines.
+        if (received.size == "small" && screenSize == "large"){
+          if (received.uid !== uid) {
+            var theirPath;
+            if (users.hasOwnProperty(received.uid)) {
+                theirPath = users[received.uid];
+                theirPath.strokeColor = received.color;
+            } else {
+                theirPath = new paper.Path();
+                theirPath.strokeColor = colorCollection[Math.floor(Math.random() * colorCollection.length)];
+            }
           var theirPoint = new paper.Point({
-            x: received.x,
-            y: received.y,
-            length: received.length,
-            angle: received.angle,
-            angleInRadians: received.angleInRadians,
-            quadrant: received.quadrant,
-            //selected: received.selected
+              x: received.x,
+              y: received.y,
+              length: received.length,
+              angle: received.angle,
+              angleInRadians: received.angleInRadians,
+              quadrant: received.quadrant,
+              //selected: received.selected
           });
           theirPath.add(theirPoint);
           users[received.uid] = theirPath;
         }
+      }
     }
 
     socket.onclose = function(e) {
