@@ -11,12 +11,61 @@
     <script type="text/javascript" src="{% static 'draw/vendor/paper/paper-full.min.js' %}"></script>
 
     <style type="text/css">
+    #myCanvas {
+      border: 1px solid black;
+      width: 100%;
+      height: 1000px;
+      margin-top: 10%;
+    }
+
+    .asset-library {
+      margin: 30px;
+      margin-left: 50px;
+      font-size: 40px;
+    }
+    .asset-name {
+      font-size: 25px;
+    }
+    .asset {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 10px;
+    }
+    .row {
+      width: 100%;
+      margin-left: 5%;
+    }
+    .col-3 {
+      margin: 20px;
+      border-radius: 10px;
+      height: 150px;
+      background-color: rgb(209, 224, 236);
+    }
     </style>
 
 </head>
 <body>
     <!-- You may change the dimensions of this canvas -->
-    <canvas id="myCanvas" width="750px" height="750px"></canvas>
+
+    <canvas id="myCanvas"></canvas>
+
+    <div class="asset-library">Asset Library</div>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-3" id="rectangle">
+          <div class="asset-name">Rectangle</div>
+          <img class="asset"src="{% static 'draw/assets/asset-1.png' %}">
+        </div>
+        <div class="col-3"></div>
+        <div class="col-3"></div>
+      </div>
+      <div class="row">
+        <div class="col-3"></div>
+        <div class="col-3"></div>
+        <div class="col-3"></div>
+      </div>
+    </div>
 </body>
 <script>
 
@@ -30,6 +79,7 @@
     const color = colorCollection[Math.floor(Math.random() * colorCollection.length)];
     var users = {"uid": uid, "path": path};
     path.strokeColor = color;
+    var toolType;
 
     // getting the URL (you may want to use for Exercise 3)
     var url = window.location.href;
@@ -40,13 +90,15 @@
     var socket = new WebSocket(
         'ws://' + window.location.host + '/ws/draw');
 
+    // switching between tools
+    $("#rectangle").click(function() {
+         toolType = 1;
+      });
+
     tool.onMouseMove = function(event) { //http://paperjs.org/reference/tool/ path examples
        path.add(event.point);
        users[uid] = path;
        // You may need to add code here if you want to pass any other information.
-       //socket.send("{\"y\" : " + event.point.y + ", \"uid\" : " + uid + ", \"color\" : " + color + ", \"x\" : " + event.point.x + "}");
-       //socket.send("{\"x\" : " + event.point.x + ", \"color\" : " + color + ", \"y\" : " + event.point.y + ", \"uid\" : " + uid + "}" );
-       //point properties : x, y, length, angle, angleInRadians, quadrant, selected
        socket.send("{\"x\" : " + event.point.x +
        ", \"y\" : " + event.point.y +
        ", \"length\" : " + event.point.length +
