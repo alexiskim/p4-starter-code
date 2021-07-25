@@ -154,6 +154,25 @@
          toolType = 5;
       });
 
+    // path sending
+    function pathSend() {
+      // segments, firstSegment, lastSegment, curves, firstCurve, lastCurve, closed, length, area
+      socket.send("{\"segments\" : " + event.path.segments +
+      ", \"firstSegment\" : " + event.path.firstSegment +
+      ", \"lastSegment\" : " + event.path.lastSegment +
+      ", \"curves\" : " + event.path.curves +
+      ", \"firstCurve\" : " + event.path.firstCurve +
+      ", \"lastCurve\" : " + event.path.lastCurve +
+      ", \"closed\" : " + event.path.closed +
+      ", \"length\" : " + event.path.length +
+      ", \"area\" : " + event.path.area +
+      ", \"uid\" : " + String(uid) +
+      ", \"color\" : \"" + String(color) +
+      "\", \"size\" : \"" + String(screenSize) +
+      "\"}");
+      console.log("Sent: " + "{\"segments\" : " + event.path.segments + ", \"uid\" : " + uid + "}");
+    }
+
     // on Mouse Click
     tool.onMouseDown = function(event) {
       if (toolType == 1) { // draw
@@ -167,24 +186,28 @@
             size: [200,100],
             fillColor: '#5B5B5B' //temporary fillColor
             });
+        pathSend();
       } else if (toolType == 3) { // circle
         var circle = new paper.Path.Circle({
             center: event.point,
             radius: 40,
             fillColor: '#5B5B5B' //temporary fillColor
         })
+        pathSend();
       } else if (toolType == 4) { // rectangle
         var rectangle = new paper.Path.Rectangle({
             point: event.point,
             size: [300,200],
             fillColor: '#5B5B5B' //temporary fillColor
             });
+        pathSend();
       } else if (toolType == 5) {
         var circle = new paper.Path.Circle({
           center: event.point,
           radius: 80,
           fillColor: '#5B5B5B'
         })
+        pathSend();
       }
     }
 
@@ -198,7 +221,7 @@
        ", \"angle\" : " + event.point.angle +
        ", \"angleInRadians\" : " + event.point.angleInRadians +
        ", \"quadrant\" : " + event.point.quadrant +
-       ", \"uid\" : " + uid +
+       ", \"uid\" : " + String(uid) +
        ", \"color\" : \"" + String(color) +
        "\", \"size\" : \"" + String(screenSize) +
        "\"}");
