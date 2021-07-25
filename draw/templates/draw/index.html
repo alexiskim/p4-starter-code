@@ -154,27 +154,26 @@
          toolType = 5;
       });
 
-    // path sending
-    // function pathSend() {
-    //   // segments, firstSegment, lastSegment, curves, firstCurve, lastCurve, closed, length, area
-    //   socket.send(JSON.stringify(
-    //     "{\"segments\" : " + event.path.segments +
-    //   ", \"firstSegment\" : " + event.path.firstSegment +
-    //   ", \"lastSegment\" : " + event.path.lastSegment +
-    //   ", \"curves\" : " + event.path.curves +
-    //   ", \"firstCurve\" : " + event.path.firstCurve +
-    //   ", \"lastCurve\" : " + event.path.lastCurve +
-    //   ", \"closed\" : " + event.path.closed +
-    //   ", \"length\" : " + event.path.length +
-    //   ", \"area\" : " + event.path.area +
-    //   ", \"uid\" : " + String(uid) +
-    //   ", \"color\" : \"" + String(color) +
-    //   "\", \"size\" : \"" + String(screenSize) +
-    //   "\"}"));
-    //   console.log("Sent: " + "{\"segments\" : " + event.path.segments + ", \"uid\" : " + uid + "}");
+    // // path sending
+    //  function pathSend() {
+    //    // segments, firstSegment, lastSegment, curves, firstCurve, lastCurve, closed, length, area
+    //    socket.send("{\"segments\" : " + event.path.segments +
+    //    ", \"firstSegment\" : " + event.path.firstSegment +
+    //    ", \"lastSegment\" : " + event.path.lastSegment +
+    //    ", \"curves\" : " + event.path.curves +
+    //    ", \"firstCurve\" : " + event.path.firstCurve +
+    //    ", \"lastCurve\" : " + event.path.lastCurve +
+    //    ", \"closed\" : " + event.path.closed +
+    //    ", \"length\" : " + event.path.length +
+    //    ", \"area\" : " + event.path.area +
+    //    ", \"uid\" : " + String(uid) +
+    //    ", \"color\" : \"" + String(color) +
+    //    "\", \"size\" : \"" + String(screenSize) +
+    //    "\"}"));
+    //    console.log("Sent: " + "{\"segments\" : " + event.path.segments + ", \"uid\" : " + uid + "}");
     // }
-  
-    // Send Rectangle 
+
+    // Send Rectangle
     function recSend(event, width, height) {
       var rec = {
         "point": event.point,
@@ -196,7 +195,13 @@
       }
       socket.send(JSON.stringify(circle));
     }
-    
+
+    // Send Point
+    function pointSend(event) {
+      var point = event.point;
+      socket.send(JSON.stringify(point));
+    }
+
 
     // Handle Types on Mouse Click
     tool.onMouseDown = function(event) {
@@ -245,16 +250,17 @@
         path.add(event.point);
         users[uid] = path;
         // You may need to add code here if you want to pass any other information.
-        socket.send("{\"x\" : " + event.point.x +
-        ", \"y\" : " + event.point.y +
-        ", \"length\" : " + event.point.length +
-        ", \"angle\" : " + event.point.angle +
-        ", \"angleInRadians\" : " + event.point.angleInRadians +
-        ", \"quadrant\" : " + event.point.quadrant +
-        ", \"uid\" : " + String(uid) +
-        ", \"color\" : \"" + String(color) +
-        "\", \"size\" : \"" + String(screenSize) +
-        "\"}");
+        // socket.send("{\"x\" : " + event.point.x +
+        // ", \"y\" : " + event.point.y +
+        // ", \"length\" : " + event.point.length +
+        // ", \"angle\" : " + event.point.angle +
+        // ", \"angleInRadians\" : " + event.point.angleInRadians +
+        // ", \"quadrant\" : " + event.point.quadrant +
+        // ", \"uid\" : " + String(uid) +
+        // ", \"color\" : \"" + String(color) +
+        // "\", \"size\" : \"" + String(screenSize) +
+        // "\"}");
+        pointSend(event);
         console.log("Sent: " + "{\"x\" : " + event.point.x + ", \"y\" : " + event.point.y + ", \"uid\" : " + uid + "}");
       }
     }
@@ -277,10 +283,10 @@
         var theirPoint = new paper.Point({
             x: received.x,
             y: received.y,
-            length: received.length,
-            angle: received.angle,
-            angleInRadians: received.angleInRadians,
-            quadrant: received.quadrant,
+            // length: received.length,
+            // angle: received.angle,
+            // angleInRadians: received.angleInRadians,
+            // quadrant: received.quadrant,
         });
           theirPath.add(theirPoint);
           users[received.uid] = theirPath;
