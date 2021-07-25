@@ -154,8 +154,8 @@
          toolType = 5;
       });
 
-    // on Mouse Move; lets user see a preview of where the shape will be pasted
-    tool.onMouseMove = function(event) {
+    // on Mouse Click
+    tool.onMouseDown = function(event) {
       if (toolType == 1) { // draw
         path = new paper.Path();
         path.add(event.point);
@@ -185,34 +185,6 @@
           radius: 80,
           fillColor: '#5B5B5B'
         })
-      }
-    }
-
-    // on Mouse Click
-    tool.onMouseDown = function(event) {
-      if (toolType == 1) { // draw
-        path = new paper.Path();
-        path.add(event.point);
-        path.strokeColor = '#5B5B5B'; // temporary fillColor
-      }
-      else if (toolType == 2) { // rectangle
-        var rectangle = new paper.Path.Rectangle({
-            point: event.point,
-            size: [200,100],
-            fillColor: '#5B5B5B' //temporary fillColor
-            });
-      } else if (toolType == 3) { // circle
-        var circle = new paper.Path.Circle({
-            center: event.point,
-            radius: 40,
-            fillColor: '#5B5B5B' //temporary fillColor
-        })
-      } else if (toolType == 4) { // rectangle
-        var rectangle = new paper.Path.Rectangle({
-            point: event.point,
-            size: [300,200],
-            fillColor: '#5B5B5B' //temporary fillColor
-            });
       }
     }
 
