@@ -166,9 +166,9 @@
       ", \"closed\" : " + event.path.closed +
       ", \"length\" : " + event.path.length +
       ", \"area\" : " + event.path.area +
-      ", \"uid\" : " + String(uid) +
-      ", \"color\" : \"" + String(color) +
-      "\", \"size\" : \"" + String(screenSize) +
+      ", \"uid\" : " + JSON.stringify(uid) +
+      ", \"color\" : \"" + JSON.stringify(color) +
+      "\", \"size\" : \"" + JSON.stringify(screenSize) +
       "\"}");
       console.log("Sent: " + "{\"segments\" : " + event.path.segments + ", \"uid\" : " + uid + "}");
     }
