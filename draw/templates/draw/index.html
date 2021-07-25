@@ -12,7 +12,7 @@
 
     <style type="text/css">
     body {
-      background-color: #383c3f;
+      background-color: #5c5e5f;
     }
 
     #myCanvas {
@@ -155,26 +155,55 @@
       });
 
     // path sending
-    function pathSend() {
-      // segments, firstSegment, lastSegment, curves, firstCurve, lastCurve, closed, length, area
-      socket.send("{\"segments\" : " + event.path.segments +
-      ", \"firstSegment\" : " + event.path.firstSegment +
-      ", \"lastSegment\" : " + event.path.lastSegment +
-      ", \"curves\" : " + event.path.curves +
-      ", \"firstCurve\" : " + event.path.firstCurve +
-      ", \"lastCurve\" : " + event.path.lastCurve +
-      ", \"closed\" : " + event.path.closed +
-      ", \"length\" : " + event.path.length +
-      ", \"area\" : " + event.path.area +
-      ", \"uid\" : " + JSON.stringify(uid) +
-      ", \"color\" : \"" + JSON.stringify(color) +
-      "\", \"size\" : \"" + JSON.stringify(screenSize) +
-      "\"}");
-      console.log("Sent: " + "{\"segments\" : " + event.path.segments + ", \"uid\" : " + uid + "}");
+    // function pathSend() {
+    //   // segments, firstSegment, lastSegment, curves, firstCurve, lastCurve, closed, length, area
+    //   socket.send(JSON.stringify(
+    //     "{\"segments\" : " + event.path.segments +
+    //   ", \"firstSegment\" : " + event.path.firstSegment +
+    //   ", \"lastSegment\" : " + event.path.lastSegment +
+    //   ", \"curves\" : " + event.path.curves +
+    //   ", \"firstCurve\" : " + event.path.firstCurve +
+    //   ", \"lastCurve\" : " + event.path.lastCurve +
+    //   ", \"closed\" : " + event.path.closed +
+    //   ", \"length\" : " + event.path.length +
+    //   ", \"area\" : " + event.path.area +
+    //   ", \"uid\" : " + String(uid) +
+    //   ", \"color\" : \"" + String(color) +
+    //   "\", \"size\" : \"" + String(screenSize) +
+    //   "\"}"));
+    //   console.log("Sent: " + "{\"segments\" : " + event.path.segments + ", \"uid\" : " + uid + "}");
+    // }
+    
+    //send rectangle
+    // function recSend(event, width, height) {
+    //   console.log("AHHHHHHH");
+    //   socket.send(JSON.stringify(
+    //    // "{\"x\" : " + event.point.x +
+    //    //", \"y\" : " + event.point.y +
+    //    "{\"width\" : " + width +
+    //    ", \"height\" : " + height +
+    //    ", \"point\" : " + event.point +
+    //    //", \"size\" : " + event.point.size +
+    //    ", \"uid\" : " + String(uid) +
+    //    ", \"color\" : \"" + String(color) +
+    //    //"\", \"size\" : \"" + String(screenSize) +
+    //    "\"}"));
+    // }
+    
+    function recSend(event, width, height) {
+      var rec = {
+        "point": event.point,
+        "width": width,
+        "height": height,
+        "uid": String(uid)
+      }
+      socket.send(JSON.stringify(rec));
     }
+    
 
     // on Mouse Click
     tool.onMouseDown = function(event) {
+      
       if (toolType == 1) { // draw
         path = new paper.Path();
         path.add(event.point);
@@ -186,76 +215,113 @@
             size: [200,100],
             fillColor: '#5B5B5B' //temporary fillColor
             });
-        pathSend();
+        
+
       } else if (toolType == 3) { // circle
         var circle = new paper.Path.Circle({
             center: event.point,
             radius: 40,
             fillColor: '#5B5B5B' //temporary fillColor
         })
-        pathSend();
       } else if (toolType == 4) { // rectangle
         var rectangle = new paper.Path.Rectangle({
             point: event.point,
             size: [300,200],
             fillColor: '#5B5B5B' //temporary fillColor
             });
-        pathSend();
       } else if (toolType == 5) {
         var circle = new paper.Path.Circle({
           center: event.point,
           radius: 80,
           fillColor: '#5B5B5B'
         })
-        pathSend();
       }
     }
 
     tool.onMouseDrag = function(event) { //http://paperjs.org/reference/tool/ path examples
-       path.add(event.point);
-       users[uid] = path;
-       // You may need to add code here if you want to pass any other information.
-       socket.send("{\"x\" : " + event.point.x +
-       ", \"y\" : " + event.point.y +
-       ", \"length\" : " + event.point.length +
-       ", \"angle\" : " + event.point.angle +
-       ", \"angleInRadians\" : " + event.point.angleInRadians +
-       ", \"quadrant\" : " + event.point.quadrant +
-       ", \"uid\" : " + String(uid) +
-       ", \"color\" : \"" + String(color) +
-       "\", \"size\" : \"" + String(screenSize) +
-       "\"}");
-       console.log("Sent: " + "{\"x\" : " + event.point.x + ", \"y\" : " + event.point.y + ", \"uid\" : " + uid + "}");
+      if (toolType == 1) {
+        path.add(event.point);
+        users[uid] = path;
+        // You may need to add code here if you want to pass any other information.
+        socket.send("{\"x\" : " + event.point.x +
+        ", \"y\" : " + event.point.y +
+        ", \"length\" : " + event.point.length +
+        ", \"angle\" : " + event.point.angle +
+        ", \"angleInRadians\" : " + event.point.angleInRadians +
+        ", \"quadrant\" : " + event.point.quadrant +
+        ", \"uid\" : " + String(uid) +
+        ", \"color\" : \"" + String(color) +
+        "\", \"size\" : \"" + String(screenSize) +
+        "\"}");
+        console.log("Sent: " + "{\"x\" : " + event.point.x + ", \"y\" : " + event.point.y + ", \"uid\" : " + uid + "}");
+      }
     }
 
     socket.onmessage = function(receivedMessage) {
       var received = JSON.parse(receivedMessage.data);
       console.log("Received: " + JSON.stringify(received));
-      // You will probably want to add some code here to draw more lines.
-        if (received.size == "small" && screenSize == "large"){
-          if (received.uid !== uid) {
-            var theirPath;
-            if (users.hasOwnProperty(received.uid)) {
-                theirPath = users[received.uid];
-                theirPath.strokeColor = received.color;
-            } else {
-                theirPath = new paper.Path();
-                theirPath.strokeColor = colorCollection[Math.floor(Math.random() * colorCollection.length)];
-            }
-          var theirPoint = new paper.Point({
-              x: received.x,
-              y: received.y,
-              length: received.length,
-              angle: received.angle,
-              angleInRadians: received.angleInRadians,
-              quadrant: received.quadrant,
-              //selected: received.selected
-          });
-          theirPath.add(theirPoint);
-          users[received.uid] = theirPath;
-        }
+
+      if (toolType == 1) { // draw
+        path = new paper.Path();
+        path.add(event.point);
+        path.strokeColor = '#5B5B5B'; // temporary fillColor
+      }
+      else if (toolType == 2) { // rectangle
+        var rectangle = new paper.Path.Rectangle({
+            point: received.point,
+            size: [200,100],
+            fillColor: '#5B5B5B' //temporary fillColor
+            });
       }
     }
+
+    //   if (received.uid !== uid) {
+    //     var theirPath;
+    //     if (users.hasOwnProperty(received.uid)) {
+    //         theirPath = users[received.uid];
+    //         theirPath.strokeColor = received.color;
+    //     } else {
+    //         theirPath = new paper.Path();
+    //         theirPath.strokeColor = colorCollection[Math.floor(Math.random() * colorCollection.length)];
+    //     }
+    //     var theirPoint = new paper.Point({
+    //         x: received.x,
+    //         y: received.y,
+    //         length: received.length,
+    //         angle: received.angle,
+    //         angleInRadians: received.angleInRadians,
+    //         quadrant: received.quadrant,
+    //         //selected: received.selected
+    //     });
+    //     theirPath.add(theirPoint);
+    //     users[received.uid] = theirPath;
+    //    }
+    // }
+
+      // // You will probably want to add some code here to draw more lines.
+      //   if (received.size == "small" && screenSize == "large"){
+      //     if (received.uid !== uid) {
+      //       var theirPath;
+      //       if (users.hasOwnProperty(received.uid)) {
+      //           theirPath = users[received.uid];
+      //           theirPath.strokeColor = received.color;
+      //       } else {
+      //           theirPath = new paper.Path();
+      //           theirPath.strokeColor = colorCollection[Math.floor(Math.random() * colorCollection.length)];
+      //       }
+      //     var theirPoint = new paper.Point({
+      //         x: received.x,
+      //         y: received.y,
+      //         length: received.length,
+      //         angle: received.angle,
+      //         angleInRadians: received.angleInRadians,
+      //         quadrant: received.quadrant,
+      //         //selected: received.selected
+      //     });
+      //     theirPath.add(theirPoint);
+      //     users[received.uid] = theirPath;
+      //   }
+      // }
 
     socket.onclose = function(e) {
         console.error('Chat socket closed unexpectedly');
