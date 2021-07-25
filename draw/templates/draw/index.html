@@ -11,17 +11,49 @@
     <script type="text/javascript" src="{% static 'draw/vendor/paper/paper-full.min.js' %}"></script>
 
     <style type="text/css">
+    body {
+      background-color: #383c3f;
+    }
+
     #myCanvas {
+      background-color: rgb(247, 247, 247);
       border: 1px solid black;
       width: 100%;
       height: 1000px;
-      margin-top: 10%;
+      margin-top: 5%;
+      margin-left: 25px;
+    }
+
+    .container-fluid {
+      margin-top: 20px;
+      margin-left: 25px;
+      background-color: #a892c9;
+      padding-bottom: 30px;
+    }
+
+    .draw {
+      background-color: rgb(238, 230, 247);
+      border-radius: 50%;
+      height: 100px;
+      width: 100px;
+      margin-top: 20px;
+      margin-right: 5%;
+    }
+    .draw-icon {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 15px;
     }
 
     .asset-library {
       margin: 30px;
-      margin-left: 50px;
+      margin-top: 20px;
+      padding-top: 20px;
       font-size: 40px;
+      color: #f1f0f0;
+      font-weight: bold;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     .asset-name {
       font-size: 25px;
@@ -38,9 +70,8 @@
     }
     .col-3 {
       margin: 20px;
-      border-radius: 10px;
       height: 150px;
-      background-color: rgb(209, 224, 236);
+      background-color: rgb(238, 230, 247);
     }
     </style>
 
@@ -49,14 +80,24 @@
     <!-- You may change the dimensions of this canvas -->
 
     <canvas id="myCanvas"></canvas>
-
-    <div class="asset-library">Asset Library</div>
     <div class="container-fluid">
       <div class="row">
-        <div class="col-3" id="rectangle">
-          <div class="asset-name">Rectangle</div>
+      <div class="asset-library">Asset Library</div>
+      <div class="ml-auto draw" id="drawing"><img class="draw-icon" src="{% static 'draw/assets/draw.png' %}"></div>
+      </div>
+      <div class="row">
+        <div class="col-3" id="rectangle-sm">
+          <div class="asset-name">Rectangle-sm</div>
           <img class="asset"src="{% static 'draw/assets/asset-1.png' %}">
         </div>
+        <div class="col-3" id="circle-sm">
+          <div class="asset-name">Circle-sm</div>
+          <img class="asset"src="{% static 'draw/assets/asset-2.png' %}">
+        </div>
+        <div class="col-3"></div>
+      </div>
+      <div class="row">
+        <div class="col-3"></div>
         <div class="col-3"></div>
         <div class="col-3"></div>
       </div>
@@ -91,9 +132,39 @@
         'ws://' + window.location.host + '/ws/draw');
 
     // switching between tools
-    $("#rectangle").click(function() {
+    $("#drawing").click(function() {
          toolType = 1;
       });
+    $("#rectangle-sm").click(function() {
+         toolType = 2;
+      });
+
+    $("#circle-sm").click(function() {
+         toolType = 3;
+      });
+    
+
+    // on Mouse Click
+    tool.onMouseDown = function(event) {
+      if (toolType == 1) { // draw
+        path = new paper.Path();
+        path.add(event.point);
+        path.strokeColor = '#5B5B5B'; // temporary fillColor
+      }
+      else if (toolType == 2) { // rectangle
+        var rectangle = new paper.Path.Rectangle({
+            point: event.point,
+            size: [200,100],
+            fillColor: '#5B5B5B' //temporary fillColor
+            });
+      } else if (toolType == 3) { // circle
+        var circle = new paper.Path.Circle({
+            center: event.point,
+            radius: 60,
+            fillColor: '#5B5B5B' //temporary fillColor
+        })
+      }
+    }
 
     tool.onMouseMove = function(event) { //http://paperjs.org/reference/tool/ path examples
        path.add(event.point);
