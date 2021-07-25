@@ -94,7 +94,10 @@
           <div class="asset-name">Circle-sm</div>
           <img class="asset"src="{% static 'draw/assets/asset-2.png' %}">
         </div>
-        <div class="col-3"></div>
+        <div class="col-3" id="rectangle-lg">
+          <div class="asset-name">Rectangle-lg</div>
+          <img class="asset"src="{% static 'draw/assets/asset-3.png' %}">
+        </div>
       </div>
       <div class="row">
         <div class="col-3"></div>
@@ -138,9 +141,11 @@
     $("#rectangle-sm").click(function() {
          toolType = 2;
       });
-
     $("#circle-sm").click(function() {
          toolType = 3;
+      });
+    $("#rectangle-lg").click(function() {
+         toolType = 4;
       });
     
 
@@ -160,13 +165,19 @@
       } else if (toolType == 3) { // circle
         var circle = new paper.Path.Circle({
             center: event.point,
-            radius: 60,
+            radius: 40,
             fillColor: '#5B5B5B' //temporary fillColor
         })
+      } else if (toolType == 4) { // rectangle
+        var rectangle = new paper.Path.Rectangle({
+            point: event.point,
+            size: [300,200],
+            fillColor: '#5B5B5B' //temporary fillColor
+            });
       }
     }
 
-    tool.onMouseMove = function(event) { //http://paperjs.org/reference/tool/ path examples
+    tool.onMouseDrag = function(event) { //http://paperjs.org/reference/tool/ path examples
        path.add(event.point);
        users[uid] = path;
        // You may need to add code here if you want to pass any other information.
