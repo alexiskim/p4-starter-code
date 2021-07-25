@@ -173,44 +173,40 @@
     //   "\"}"));
     //   console.log("Sent: " + "{\"segments\" : " + event.path.segments + ", \"uid\" : " + uid + "}");
     // }
-    
-    //send rectangle
-    // function recSend(event, width, height) {
-    //   console.log("AHHHHHHH");
-    //   socket.send(JSON.stringify(
-    //    // "{\"x\" : " + event.point.x +
-    //    //", \"y\" : " + event.point.y +
-    //    "{\"width\" : " + width +
-    //    ", \"height\" : " + height +
-    //    ", \"point\" : " + event.point +
-    //    //", \"size\" : " + event.point.size +
-    //    ", \"uid\" : " + String(uid) +
-    //    ", \"color\" : \"" + String(color) +
-    //    //"\", \"size\" : \"" + String(screenSize) +
-    //    "\"}"));
-    // }
-    
+  
+    // Send Rectangle 
     function recSend(event, width, height) {
       var rec = {
         "point": event.point,
         "width": width,
         "height": height,
-        "uid": String(uid)
+        "uid": String(uid),
+        "color": String(color)
       }
       socket.send(JSON.stringify(rec));
     }
+
+    // Send Circle
+    function circSend(event, radius) {
+      var circle = {
+        "center": event.point,
+        "radius": radius,
+        "uid": String(uid),
+        "color": String(color)
+      }
+      socket.send(JSON.stringify(circle));
+    }
     
 
-    // on Mouse Click
+    // Handle Types on Mouse Click
     tool.onMouseDown = function(event) {
-      
       if (toolType == 1) { // draw
         path = new paper.Path();
         path.add(event.point);
         path.strokeColor = '#5B5B5B'; // temporary fillColor
       }
       else if (toolType == 2) { // rectangle
-        var rectangle = new paper.Path.Rectangle({
+        var rectangle = new paper.Shape.Rectangle({
             point: event.point,
             size: [200,100],
             fillColor: '#5B5B5B' //temporary fillColor
@@ -218,26 +214,32 @@
         recSend(event, 200, 100);
 
       } else if (toolType == 3) { // circle
-        var circle = new paper.Path.Circle({
+        var circle = new paper.Shape.Circle({
             center: event.point,
             radius: 40,
             fillColor: '#5B5B5B' //temporary fillColor
         })
+        circSend(event, 40);
+
       } else if (toolType == 4) { // rectangle
-        var rectangle = new paper.Path.Rectangle({
+        var rectangle = new paper.Shape.Rectangle({
             point: event.point,
             size: [300,200],
             fillColor: '#5B5B5B' //temporary fillColor
             });
+        recSend(event, 300, 200);
+
       } else if (toolType == 5) {
-        var circle = new paper.Path.Circle({
+        var circle = new paper.Shape.Circle({
           center: event.point,
           radius: 80,
           fillColor: '#5B5B5B'
         })
+        circSend(event, 80);
       }
     }
 
+    // Send drawing points
     tool.onMouseDrag = function(event) { //http://paperjs.org/reference/tool/ path examples
       if (toolType == 1) {
         path.add(event.point);
@@ -257,22 +259,41 @@
       }
     }
 
+    // Handle Receives
     socket.onmessage = function(receivedMessage) {
       var received = JSON.parse(receivedMessage.data);
       console.log("Received: " + JSON.stringify(received));
 
       if (toolType == 1) { // draw
-        path = new paper.Path();
-        path.add(event.point);
-        path.strokeColor = '#5B5B5B'; // temporary fillColor
+        if (received.uid !== uid) {
+          var theirPath;
+          if (users.hasOwnProperty(received.uid)) {
+              theirPath = users[received.uid];
+              theirPath.strokeColor = received.color;
+          } else {
+              theirPath = new paper.Path();
+              theirPath.strokeColor = colorCollection[Math.floor(Math.random() * colorCollection.length)];
+          }
+        var theirPoint = new paper.Point({
+            x: received.x,
+            y: received.y,
+            length: received.length,
+            angle: received.angle,
+            angleInRadians: received.angleInRadians,
+            quadrant: received.quadrant,
+        });
+          theirPath.add(theirPoint);
+          users[received.uid] = theirPath;
+        }
       }
-      else if (toolType == 2) { // rectangle
-        var rectangle = new paper.Path.Rectangle({
-            point: received.point,
-            size: [200,100],
-            fillColor: '#5B5B5B' //temporary fillColor
-            });
-      }
+
+      // else if (toolType == 2) { // rectangle
+      //   var rectangle = new paper.Path.Rectangle({
+      //       point: received.point,
+      //       size: [200,100],
+      //       fillColor: '#5B5B5B' //temporary fillColor
+      //       });
+      // }
     }
 
     //   if (received.uid !== uid) {
