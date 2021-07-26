@@ -229,6 +229,9 @@
       if (toolType == 1) { // draw
         path = new paper.Path();
         path.strokeColor = color;
+        path.strokeWidth = 10;
+        path.strokeCap = 'round';
+        path.smooth();
       }
       else if (toolType == 2) { // rectangle
         var rectangle = new paper.Path.Rectangle({
@@ -314,6 +317,8 @@
           });
           if (received.uid != uid) {
             theirPath.add(theirPoint);
+            theirPath.strokeWidth = 10;
+            theirPath.strokeCap = 'round';
             }
         }
         else if (received.toolType == 2 || received.toolType == 4) {
