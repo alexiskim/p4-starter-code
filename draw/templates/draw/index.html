@@ -185,7 +185,8 @@
         "height": height,
         "uid": String(uid),
         "color": String(color),
-        "toolType": toolType
+        "toolType": toolType,
+        "size": String(screenSize)
       }
       socket.send(JSON.stringify(rec));
     }
@@ -198,7 +199,8 @@
         "radius": radius,
         "uid": String(uid),
         "color": String(color),
-        "toolType": toolType
+        "toolType": toolType,
+        "size": String(screenSize)
       }
       socket.send(JSON.stringify(circle));
     }
@@ -215,7 +217,8 @@
         "quadrant": event.point.quadrant,
         "uid": String(uid),
         "color": String(color),
-        "toolType": 1
+        "toolType": 1,
+        "size": String(screenSize)
       }
       socket.send(JSON.stringify(point));
     }
@@ -289,6 +292,7 @@
       console.log("Received: " + JSON.stringify(received));
 
       // if (toolType == 1) { // draw
+      if (received.size == "small" && screenSize == "large"){
         if (received.uid != uid) {
           var theirPath;
           var theirPoint;
@@ -329,6 +333,7 @@
 
         users[received.uid] = theirPath;
       }
+    }
       // }
 
     //   else if (received.toolType == 2 || received.toolType == 4) {
